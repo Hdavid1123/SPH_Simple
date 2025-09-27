@@ -1,0 +1,25 @@
+{
+  "quadrilateros": [
+    { 
+      "d1": 100, 
+      "d2": 100, 
+      "d3": 100, 
+      "a1": -90, 
+      "a2": 0, 
+      "a3": 90, 
+      "resolution": 3,
+      "agujeros": [
+        {
+          "lado": "CD",
+          "tam": 10,
+          "offset": 2
+        }
+      ]
+    }
+  ],
+  "free_lines": [
+    { "from": "C", "length": 100, "angle": -90, "resolution": 3, "name": "E" },
+    { "from": "E", "length": 100, "angle": 0, "resolution": 3, "name": "F" },
+    { "from": "F", "length": 100, "angle": 90, "resolution": 3, "name": "G" }
+  ]
+  }

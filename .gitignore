@@ -1,0 +1,49 @@
+# =========================
+# Archivos de C++
+# =========================
+
+# Archivos objeto y compilados
+*.o
+*.obj
+
+# Ejecutables
+main       # ejecutable principal Linux/macOS
+*.exe      # ejecutable Windows
+*.out      # otros ejecutables comunes
+
+# Directorios de build
+build/
+
+# Archivos de backup y temporales
+*~
+*.swp
+*.bak
+
+# =========================
+# Archivos de Python
+# =========================
+
+# Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# pytest
+.pytest_cache/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Logs y archivos temporales
+*.log
+*.tmp
+
+# =========================
+# Archivos generales
+# =========================
+.DS_Store

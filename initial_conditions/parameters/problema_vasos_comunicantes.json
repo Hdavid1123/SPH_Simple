@@ -1,0 +1,43 @@
+{
+  "boundaries_conditions.json":
+  {
+  "quadrilateros": [
+    { 
+      "d1": 100, 
+      "d2": 100, 
+      "d3": 100, 
+      "a1": -90, 
+      "a2": 0, 
+      "a3": 90, 
+      "resolution": 3,
+      "agujeros": [
+        {
+          "lado": "CD",
+          "tam": 10,
+          "offset": 2
+        }
+      ]
+    }
+  ],
+  "free_lines": [
+    { "from": "C", "length": 100, "angle": 0, "resolution": 3, "name": "E" },
+    { "from": "E", "length": 100, "angle": 90, "resolution": 3, "name": "F" },
+    { "from": "F", "length": 50, "angle": 180, "resolution": 3, "name": "G" },
+    { "from": "G", "length": 90, "angle": -90, "resolution": 3, "name": "H" },
+    { "from": "H", "length": 50, "angle": 180, "resolution": 3, "name": "I" }
+  ]
+},
+  "fluid_region.json":
+  {
+  "nx": 10,
+  "ny": 10,
+  "flag_N":"False",
+  "espaciado": 0.008,
+  "vertices": {
+    "inf-izq": [-0.49, -0.07],
+    "inf-der": [-0.35, -0.07],
+    "sup-der": [-0.35, 0.07],
+    "sup-izq": [-0.49, 0.07]
+  }
+}
+}
