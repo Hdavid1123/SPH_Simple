@@ -5,14 +5,17 @@
 
 void assignParticlesToCells(std::vector<Cell>& cells,
                             std::vector<Particle>& particles,
-                            double h) {
+                            double h, double kappa) {
+
+    double cell_size = kappa * h;
+    
     for (auto& cell : cells) {
         cell.particles.clear();
         for (size_t j = 0; j < particles.size(); j++) {
             double dx = std::abs(particles[j].pos[0] - cell.center[0]);
             double dy = std::abs(particles[j].pos[1] - cell.center[1]);
 
-            if (dx < h + 1e-5*h && dy < h + 1e-5*h) {
+            if (dx < 0.5 * cell_size + 1e-5 && dy < 0.5 * cell_size + 1e-5) {
                 cell.particles.push_back(j);
             }
         }
@@ -45,7 +48,6 @@ void findNeighbors(std::vector<Cell>& cells,
                     double h_ij = 0.5 * (pi.h + pj.h);
 
                     if (r < kappa * h_ij) {
-                        // Solo añadir si no estaba ya
                         if (uniqueNeighbors.insert(pj_id).second) {
                             pi.neighbors.push_back(pj_id);
                             pi.dx.push_back(dx);
@@ -68,10 +70,12 @@ void findNeighbors(std::vector<Cell>& cells,
 
 std::vector<Cell> buildCellGrid(double xmin, double xmax,
                                 double ymin, double ymax,
-                                double h) {
+                                double h, double kappa) {
 
-    int nx = static_cast<int>(std::ceil((xmax - xmin) / h));
-    int ny = static_cast<int>(std::ceil((ymax - ymin) / h));
+    double cell_size = kappa * h;
+
+    int nx = static_cast<int>(std::ceil((xmax - xmin) / cell_size));
+    int ny = static_cast<int>(std::ceil((ymax - ymin) / cell_size));
 
     std::vector<Cell> cells;
     cells.reserve(nx * ny);
@@ -84,8 +88,9 @@ std::vector<Cell> buildCellGrid(double xmin, double xmax,
         for (int i = 0; i < nx; i++) {
             Cell cell;
             cell.id = cellIndex(i, j);
-            cell.center = { xmin + (i + 0.5) * h,
-                            ymin + (j + 0.5) * h };
+            cell.center = { xmin + (i + 0.5) * cell_size,
+                            ymin + (j + 0.5) * cell_size };
+
             // vecinos: 8 alrededor + la propia
             for (int dj = -1; dj <= 1; dj++) {
                 for (int di = -1; di <= 1; di++) {

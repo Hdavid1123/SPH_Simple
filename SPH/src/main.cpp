@@ -17,13 +17,14 @@ int main(int argc, char* argv[]) {
         computeBoundingBox(particles, xmin, xmax, ymin, ymax);
 
         double h_ref = particles[0].h;
+        double kappa = 2.0;
+
         auto cells = buildCellGrid(xmin - h_ref, xmax + h_ref,
                                    ymin - h_ref, ymax + h_ref,
-                                   h_ref);
+                                   h_ref, kappa);
 
-        assignParticlesToCells(cells, particles, h_ref);
+        assignParticlesToCells(cells, particles, h_ref, kappa);
 
-        double kappa = 2.0;
         findNeighbors(cells, particles, kappa);
 
         test_NN(particles, 20);
