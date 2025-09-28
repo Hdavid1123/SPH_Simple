@@ -10,6 +10,7 @@
 main       # ejecutable principal Linux/macOS
 *.exe      # ejecutable Windows
 *.out      # otros ejecutables comunes
+*.output  # archivos de salida
 
 # Directorios
 build/
