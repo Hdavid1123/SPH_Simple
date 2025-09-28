@@ -8,4 +8,5 @@ void computeBoundingBox(const std::vector<Particle>& particles,
                         double& ymin, double& ymax);
 
 // Test de vecinos: escribe en NN_test.output
-void test_NN(const std::vector<Particle>& particles, int nTests);
+void test_NN(const std::vector<Particle>& particles, int nTests,
+             const std::string& filename);

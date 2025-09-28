@@ -2,6 +2,8 @@
 #include <array>
 #include <vector>
 
+const double RHO0 = 1000.0; // densidad de referencia (agua)
+
 struct Particle {
     int id;
     std::array<double, 2> pos;     // posición (x,y)

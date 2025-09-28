@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <limits>
-#include "../include/utils.h"
+#include "utils.h"
 
 void computeBoundingBox(const std::vector<Particle>& particles,
                         double& xmin, double& xmax,
@@ -22,10 +22,11 @@ void computeBoundingBox(const std::vector<Particle>& particles,
     }
 }
 
-void test_NN(const std::vector<Particle>& particles, int nTests) {
-    std::ofstream fTestNN("NN_test.output");
+void test_NN(const std::vector<Particle>& particles, int nTests,
+             const std::string& filename) {
+    std::ofstream fTestNN(filename);
     if (!fTestNN) {
-        std::cerr << "No se pudo abrir NN_test.output para escritura\n";
+        std::cerr << "No se pudo abrir " << filename << " para escritura\n";
         return;
     }
 
@@ -70,5 +71,5 @@ void test_NN(const std::vector<Particle>& particles, int nTests) {
     }
 
     fTestNN.close();
-    std::cout << "Resultados guardados en NN_test.output\n";
+    std::cout << "Resultados guardados en " << filename << "\n";
 }
