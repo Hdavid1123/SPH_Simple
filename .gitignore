@@ -11,8 +11,9 @@ main       # ejecutable principal Linux/macOS
 *.exe      # ejecutable Windows
 *.out      # otros ejecutables comunes
 
-# Directorios de build
+# Directorios
 build/
+test_results/
 
 # Archivos de backup y temporales
 *~
