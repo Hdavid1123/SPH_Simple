@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
-#include "particle.h"
+#include <string>
+#include "core/particle.h"
 
 // Calcula el bounding box dinámico del conjunto de partículas
 void computeBoundingBox(const std::vector<Particle>& particles,

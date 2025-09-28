@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "particle.h"
+#include "core/particle.h"
 
 // Estructura para celdas de la malla espacial
 struct Cell {

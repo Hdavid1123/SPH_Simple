@@ -1,9 +1,9 @@
 #include <iostream>
-#include "../include/particle_io.h"
-#include "../include/linkedList.h"
-#include "../include/cubicSplineKernel.h"
-#include "../include/utils.h"
-#include "../include/density.h"   // nueva cabecera para densidad
+#include "io/particle_io.h"
+#include "core/linkedList.h"
+#include "core/cubicSplineKernel.h"
+#include "utils/utils.h"
+#include "core/density.h"
 
 int main(int argc, char* argv[]) {
     std::string filename = (argc > 1) ? argv[1] : "../data/archivo.txt";

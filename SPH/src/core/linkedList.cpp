@@ -1,7 +1,7 @@
 #include <unordered_set>
 #include <cmath>
-#include "cubicSplineKernel.h"
-#include "linkedList.h"
+#include "core/cubicSplineKernel.h"
+#include "core/linkedList.h"
 
 void assignParticlesToCells(std::vector<Cell>& cells,
                             std::vector<Particle>& particles,

@@ -1,4 +1,5 @@
-#include "../include/particle_io.h"
+#include "io/particle_io.h"
+#include "core/particle.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>

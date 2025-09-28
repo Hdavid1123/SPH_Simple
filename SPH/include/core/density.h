@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "particle.h"
+#include "core/particle.h"
 
 // Calcula densidad SPH estándar: rho_i = sum_j m_j W(r_ij, h_ij)
 void computeDensity(std::vector<Particle>& particles);

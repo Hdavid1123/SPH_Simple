@@ -1,5 +1,5 @@
-#include "density.h"
-#include "cubicSplineKernel.h"
+#include "core/density.h"
+#include "core/cubicSplineKernel.h"
 
 void computeDensity(std::vector<Particle>& particles) {
     for (auto& pi : particles) {

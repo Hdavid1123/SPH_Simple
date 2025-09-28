@@ -4,7 +4,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <limits>
-#include "utils.h"
+#include <filesystem>
+#include "utils/utils.h"
 
 void computeBoundingBox(const std::vector<Particle>& particles,
                         double& xmin, double& xmax,
@@ -24,9 +25,17 @@ void computeBoundingBox(const std::vector<Particle>& particles,
 
 void test_NN(const std::vector<Particle>& particles, int nTests,
              const std::string& filename) {
-    std::ofstream fTestNN(filename);
+    namespace fs = std::filesystem;
+
+    // Crear carpeta test_results si no existe
+    fs::create_directories("test_results");
+
+    // Ruta completa dentro de test_results
+    std::string filepath = "test_results/" + filename;
+
+    std::ofstream fTestNN(filepath);
     if (!fTestNN) {
-        std::cerr << "No se pudo abrir " << filename << " para escritura\n";
+        std::cerr << "No se pudo abrir " << filepath << " para escritura\n";
         return;
     }
 
@@ -43,7 +52,6 @@ void test_NN(const std::vector<Particle>& particles, int nTests,
 
     std::cout << "\n=== Test de Vecinos (NN) ===\n";
     for (int k = 0; k < nTests; k++) {
-        // Elegir una partícula fluida aleatoria
         int idx;
         do {
             idx = rand() % particles.size();
@@ -53,7 +61,6 @@ void test_NN(const std::vector<Particle>& particles, int nTests,
         std::cout << "Probando partícula " << pi.id
                   << " con " << pi.neighbors.size() << " vecinos\n";
 
-        // Formato con alineación fija (como en tu código original en C)
         fTestNN << std::setw(16) << pi.id
                 << std::setw(16) << std::fixed << std::setprecision(10) << pi.pos[0]
                 << std::setw(16) << std::fixed << std::setprecision(10) << pi.pos[1]
@@ -71,5 +78,5 @@ void test_NN(const std::vector<Particle>& particles, int nTests,
     }
 
     fTestNN.close();
-    std::cout << "Resultados guardados en " << filename << "\n";
+    std::cout << "Resultados guardados en " << filepath << "\n";
 }

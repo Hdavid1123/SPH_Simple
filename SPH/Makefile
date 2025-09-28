@@ -1,9 +1,11 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Iinclude
 
-SRC = $(wildcard src/*.cpp)
+# Archivos fuente (todos los .cpp dentro de src + main.cpp en raíz)
+SRC = $(wildcard src/core/*.cpp src/io/*.cpp src/physics/*.cpp src/utils/*.cpp) main.cpp
+
 OBJDIR = build
-OBJ = $(patsubst src/%.cpp,$(OBJDIR)/%.o,$(SRC))
+OBJ = $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRC))
 
 TARGET = main
 
@@ -12,12 +14,13 @@ all: $(TARGET)
 $(TARGET): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-$(OBJDIR)/%.o: src/%.cpp | $(OBJDIR)
+# Regla genérica para compilar .cpp a .o
+$(OBJDIR)/%.o: %.cpp | $(OBJDIR)
+	mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
 clean:
-	rm -rf $(OBJDIR) $(TARGET) src/*.o
-
+	rm -rf $(OBJDIR) $(TARGET) results/*.output

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "particle.h"
+#include "core/particle.h"
 
 // Lee archivo de condiciones iniciales y devuelve un vector de partículas
 std::vector<Particle> readParticlesFromFile(const std::string& filename);
