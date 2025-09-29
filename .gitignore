@@ -10,7 +10,7 @@
 main       # ejecutable principal Linux/macOS
 *.exe      # ejecutable Windows
 *.out      # otros ejecutables comunes
-*.output  # archivos de salida
+*.output   # archivos de salida
 
 # Directorios
 build/
@@ -49,3 +49,17 @@ ENV/
 # Archivos generales
 # =========================
 .DS_Store
+
+# =========================
+# Archivos de simulación en output/
+# =========================
+
+# Ignorar estados y frames
+output/*.txt
+output/*.png
+
+# Conservar scripts de graficación
+!output/plot_states.*
+
+# Conservar marcador de carpeta vacía
+!output/.gitkeep
