@@ -1,5 +1,6 @@
 #include <unordered_set>
 #include <cmath>
+#include <limits>  // para std::numeric_limits
 #include "core/cubicSplineKernel.h"
 #include "core/linkedList.h"
 
@@ -104,5 +105,36 @@ std::vector<Cell> buildCellGrid(double xmin, double xmax,
             cells.push_back(std::move(cell));
         }
     }
+    return cells;
+}
+
+void computeBoundingBox(const std::vector<Particle>& particles,
+                        double& xmin, double& xmax,
+                        double& ymin, double& ymax) {
+    xmin = std::numeric_limits<double>::max();
+    xmax = std::numeric_limits<double>::lowest();
+    ymin = std::numeric_limits<double>::max();
+    ymax = std::numeric_limits<double>::lowest();
+
+    for (const auto& p : particles) {
+        if (p.pos[0] < xmin) xmin = p.pos[0];
+        if (p.pos[0] > xmax) xmax = p.pos[0];
+        if (p.pos[1] < ymin) ymin = p.pos[1];
+        if (p.pos[1] > ymax) ymax = p.pos[1];
+    }
+}
+
+std::vector<Cell> rebuildGridAndNeighbors(std::vector<Particle>& particles,
+                                          double h, double kappa) {
+    double xmin, xmax, ymin, ymax;
+    computeBoundingBox(particles, xmin, xmax, ymin, ymax);
+
+    auto cells = buildCellGrid(xmin - h, xmax + h,
+                               ymin - h, ymax + h,
+                               h, kappa);
+
+    assignParticlesToCells(cells, particles, h, kappa);
+    findNeighbors(cells, particles, kappa);
+
     return cells;
 }

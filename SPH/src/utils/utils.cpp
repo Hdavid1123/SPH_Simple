@@ -7,22 +7,6 @@
 #include <filesystem>
 #include "utils/utils.h"
 
-void computeBoundingBox(const std::vector<Particle>& particles,
-                        double& xmin, double& xmax,
-                        double& ymin, double& ymax) {
-    xmin = std::numeric_limits<double>::max();
-    xmax = std::numeric_limits<double>::lowest();
-    ymin = std::numeric_limits<double>::max();
-    ymax = std::numeric_limits<double>::lowest();
-
-    for (const auto& p : particles) {
-        if (p.pos[0] < xmin) xmin = p.pos[0];
-        if (p.pos[0] > xmax) xmax = p.pos[0];
-        if (p.pos[1] < ymin) ymin = p.pos[1];
-        if (p.pos[1] > ymax) ymax = p.pos[1];
-    }
-}
-
 void test_NN(const std::vector<Particle>& particles, int nTests,
              const std::string& filename) {
     namespace fs = std::filesystem;

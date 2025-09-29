@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include "io/particle_io.h"
 #include "core/linkedList.h"
 #include "core/cubicSplineKernel.h"
@@ -8,6 +9,7 @@
 #include "physics/integrator.h"
 #include "physics/navierStokes.h"
 #include "physics/pressure.h"
+#include "utils/output.h"
 
 int main(int argc, char* argv[]) {
     std::string filename = (argc > 1) ? argv[1] : "../data/archivo.txt";
@@ -26,15 +28,7 @@ int main(int argc, char* argv[]) {
         const double g = -9.81;  // gravedad
 
         // === Fase 1: malla inicial ===
-        double xmin, xmax, ymin, ymax;
-        computeBoundingBox(particles, xmin, xmax, ymin, ymax);
-
-        auto cells = buildCellGrid(xmin - h_ref, xmax + h_ref,
-                                   ymin - h_ref, ymax + h_ref,
-                                   h_ref, kappa);
-
-        assignParticlesToCells(cells, particles, h_ref, kappa);
-        findNeighbors(cells, particles, kappa);
+        auto cells = rebuildGridAndNeighbors(particles, h_ref, kappa);
 
         computeDensity(particles);
         computePressureEOS(particles, c);
@@ -43,14 +37,7 @@ int main(int argc, char* argv[]) {
 
         // === Fase 2: actualizar h y vecinos ===
         updateSmoothingLength(particles, rho0);
-
-        computeBoundingBox(particles, xmin, xmax, ymin, ymax);
-        cells = buildCellGrid(xmin - h_ref, xmax + h_ref,
-                              ymin - h_ref, ymax + h_ref,
-                              h_ref, kappa);
-
-        assignParticlesToCells(cells, particles, h_ref, kappa);
-        findNeighbors(cells, particles, kappa);
+        cells = rebuildGridAndNeighbors(particles, h_ref, kappa);
 
         computeDensity(particles);
         computePressureEOS(particles, c);
@@ -60,28 +47,22 @@ int main(int argc, char* argv[]) {
         // === Fase 3: loop de integración ===
         std::cout << "Iniciando integración con " << nSteps << " pasos...\n";
 
-        // Calcular el paso temporal basado en la viscosidad cinemática
-
         // Encontrar h mínimo para usar en el cálculo de dt
         double h_min = std::numeric_limits<double>::max();
         for (const auto& p : particles) {
-            if (p.h < h_min) {
-                h_min = p.h;
-            }
+            if (p.h < h_min) h_min = p.h;
         }
 
         const double nu = 1e-6; // viscosidad cinemática agua (m^2/s)
-        double dt = 0.125 * (h_min * h_min) / nu;
+        // double dt = 0.125 * (h_min * h_min) / nu;
+        double dt = 5e-3; // Valor fijo para pruebas iniciales
 
         std::cout << "dt calculado (Liu 2003) = " << dt 
                   << " usando h_min=" << h_min << "\n";
 
-        // Calculo para la verificación cada 5% de los pasos
-        int checkInterval = std::max(1, nSteps / 20); // 1/20 = 5%
-
+        int checkInterval = std::max(1, nSteps / 20); // 5% de los pasos
 
         // ========== Inicio Bucle Temporal ===========
-
         for (int step = 0; step < nSteps; ++step) {
             std::cout << "Paso " << step << "\n";
 
@@ -90,13 +71,7 @@ int main(int argc, char* argv[]) {
 
             // 2️⃣ Actualizar longitud de suavizado y reconstruir malla
             updateSmoothingLength(particles, rho0);
-
-            computeBoundingBox(particles, xmin, xmax, ymin, ymax);
-            cells = buildCellGrid(xmin - h_ref, xmax + h_ref,
-                                  ymin - h_ref, ymax + h_ref,
-                                  h_ref, kappa);
-            assignParticlesToCells(cells, particles, h_ref, kappa);
-            findNeighbors(cells, particles, kappa);
+            cells = rebuildGridAndNeighbors(particles, h_ref, kappa);
 
             // 3️⃣ Recalcular densidad y presión (EOS lineal)
             computeDensity(particles);
@@ -118,6 +93,9 @@ int main(int argc, char* argv[]) {
             if (step % checkInterval == 0) {
                 verifyFirstFluidParticle(particles);
             }
+
+            // 8️⃣ Guardar estado
+            printState(particles, step);
         }
 
         std::cout << "Integración finalizada.\n";

@@ -27,10 +27,6 @@ void printAccelerations(const std::vector<Particle>& particles, int nPrint) {
     }
 }
 
-#include "utils/printPhysics.h"
-#include <iostream>
-#include <algorithm> // std::min
-
 void verifyFirstFluidParticle(const std::vector<Particle>& particles) {
     int fluidIndex = -1;
 

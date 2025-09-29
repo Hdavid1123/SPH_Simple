@@ -23,4 +23,4 @@ $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
 clean:
-	rm -rf $(OBJDIR) $(TARGET) results/*.output
+	rm -rf $(OBJDIR) $(TARGET) results/*.output output/*.png output/*.txt
