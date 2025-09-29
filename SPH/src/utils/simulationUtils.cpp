@@ -5,7 +5,26 @@
 #include <ctime>
 #include <limits>
 #include <filesystem>
-#include "utils/utils.h"
+
+// Headers propios del proyecto
+#include "utils/simulationUtils.h"
+#include "core/linkedList.h"
+#include "core/density.h"
+#include "physics/pressure.h"
+#include "utils/printPhysics.h"
+
+std::vector<Cell> initializePhase(
+    std::vector<Particle>& particles, double h_ref, double kappa, double c,
+    const std::string& label, const std::string& testFile
+) {
+    auto cells = rebuildGridAndNeighbors(particles, h_ref, kappa);
+    computeDensity(particles);
+    computePressureEOS(particles, c);
+    printDensityPressure(particles, 10);
+    test_NN(particles, 20, testFile);
+    std::cout << "Fase " << label << " completada.\n";
+    return cells;
+}
 
 void test_NN(const std::vector<Particle>& particles, int nTests,
              const std::string& filename) {
