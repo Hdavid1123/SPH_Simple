@@ -104,10 +104,10 @@ def visualize_particles(boundary_particles: List[dict],
 
     if boundary_particles:
         bx, by = zip(*[p["position"] for p in boundary_particles])
-        ax.scatter(bx, by, s=6, color="black", label="Frontera")
+        ax.scatter(bx, by, s=1, color="black", label="Frontera")
     if fluid_particles:
         fx, fy = zip(*[p["position"] for p in fluid_particles])
-        ax.scatter(fx, fy, s=6, color="blue", label="Fluido")
+        ax.scatter(fx, fy, s=1, color="blue", label="Fluido")
 
     ax.set_title("Partículas de frontera y fluido")
     ax.set_aspect("equal", adjustable="datalim")

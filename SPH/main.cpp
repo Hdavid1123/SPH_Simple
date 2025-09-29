@@ -21,8 +21,7 @@ int main(int argc, char* argv[]) {
         double h_ref = particles[0].h;
         double kappa = 2.0;
         double rho0  = 1000.0;
-        double dt    = 0.001;
-        int nSteps   = 20;
+        int nSteps   = 100;
         double c     = 0.01;
         const double g = -9.81;  // gravedad
 
@@ -61,6 +60,28 @@ int main(int argc, char* argv[]) {
         // === Fase 3: loop de integración ===
         std::cout << "Iniciando integración con " << nSteps << " pasos...\n";
 
+        // Calcular el paso temporal basado en la viscosidad cinemática
+
+        // Encontrar h mínimo para usar en el cálculo de dt
+        double h_min = std::numeric_limits<double>::max();
+        for (const auto& p : particles) {
+            if (p.h < h_min) {
+                h_min = p.h;
+            }
+        }
+
+        const double nu = 1e-6; // viscosidad cinemática agua (m^2/s)
+        double dt = 0.125 * (h_min * h_min) / nu;
+
+        std::cout << "dt calculado (Liu 2003) = " << dt 
+                  << " usando h_min=" << h_min << "\n";
+
+        // Calculo para la verificación cada 5% de los pasos
+        int checkInterval = std::max(1, nSteps / 20); // 1/20 = 5%
+
+
+        // ========== Inicio Bucle Temporal ===========
+
         for (int step = 0; step < nSteps; ++step) {
             std::cout << "Paso " << step << "\n";
 
@@ -93,38 +114,9 @@ int main(int argc, char* argv[]) {
             // 6️⃣ Kick (solo partículas de fluido)
             kick(particles, dt);
 
-            // 7️⃣ (Opcional) buscar la primera partícula de tipo fluido
-            int fluidIndex = -1;
-            for (size_t i = 0; i < particles.size(); ++i) {
-                if (particles[i].type == 0) {
-                    fluidIndex = i;
-                    break;
-                }
-            }
-
-            if (fluidIndex >= 0) {
-                const Particle& p = particles[fluidIndex];
-                std::cout << "=== Verificación partícula de fluido (index=" << fluidIndex << ") ===\n";
-                std::cout << "Pos[0]=" << p.pos[0] << ", Pos[1]=" << p.pos[1]
-                        << ", H=" << p.h
-                        << ", Vel[0]=" << p.vel[0] << ", Vel[1]=" << p.vel[1] << "\n";
-
-                if (!p.neighbors.empty()) {
-                    std::cout << "Número de vecinos: " << p.neighbors.size() << "\n";
-                    for (size_t k = 0; k < std::min(p.neighbors.size(), size_t(5)); ++k) {
-                        int j = p.neighbors[k];
-                        std::cout << "Vecino " << j 
-                                << ": dx=" << p.dx[k] << ", dy=" << p.dy[k]
-                                << ", r=" << p.r[k] 
-                                << ", W=" << p.W[k] 
-                                << ", dWx=" << p.dWx[k] 
-                                << ", dWy=" << p.dWy[k] << "\n";
-                    }
-                } else {
-                    std::cout << "No hay vecinos calculados todavía.\n";
-                }
-            } else {
-                std::cout << "No hay partículas de fluido disponibles para verificar.\n";
+            // 7️⃣ Verificación periódica de una partícula fluida
+            if (step % checkInterval == 0) {
+                verifyFirstFluidParticle(particles);
             }
         }
 

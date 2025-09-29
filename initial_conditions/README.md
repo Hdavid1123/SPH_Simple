@@ -95,10 +95,10 @@ Ejemplos:
 
 ```bash
 # Exportar fluido y visualizar
-python initial_conditions/ic_main.py export_fluid --plot
+python initial_conditions/main.py export_fluid --plot
 
 # Exportar todo en un archivo llamado escena.txt
-python initial_conditions/ic_main.py export_all --output escena.txt
+python initial_conditions/main.py export_all --output escena.txt
 ```
 
 ---
