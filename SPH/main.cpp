@@ -31,6 +31,9 @@ int main(int argc, char* argv[]) {
         double h_min = std::numeric_limits<double>::max();
         for (const auto& p : particles) if (p.type == 0) h_min = std::min(h_min, p.h);
 
+        // Prueba del kernel cúbico
+        testKernel(h_min, TWO_D);
+
         auto cells = initializePhase(
             particles, h_min, kappa, c,
             "Inicial", "NN_before_h_update.output"
