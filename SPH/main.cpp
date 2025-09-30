@@ -39,7 +39,6 @@ int main(int argc, char* argv[]) {
         // === Fase 2: actualizar h y vecinos ===
 
         //updateSmoothingLength(particles, rho0);
->>>>>>> b74dc18 (feat (analysis.ipynb): Se crean algunos archivos para analizar variables, se pasa a una rama con intención exclusiva.)
         cells = initializePhase(
             particles, h_min, kappa, c,
             "Post-h Update", "NN_after_h_update.output"
@@ -60,7 +59,7 @@ int main(int argc, char* argv[]) {
         // 2️⃣ Actualizar longitud de suavizado y reconstruir malla
         //updateSmoothingLength(particles, rho0);
         cells = rebuildGridAndNeighbors(particles, h_ref, kappa);
->>>>>>> b74dc18 (feat (analysis.ipynb): Se crean algunos archivos para analizar variables, se pasa a una rama con intención exclusiva.)
+
 
         // 3️⃣ Recalcular densidad y presión
         computeDensity(particles);
