@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 
         // 2️⃣ Actualizar longitud de suavizado y reconstruir malla
         //updateSmoothingLength(particles, rho0);
-        cells = rebuildGridAndNeighbors(particles, h_ref, kappa);
+        cells = rebuildGridAndNeighbors(particles, h_min, kappa);
 
 
         // 3️⃣ Recalcular densidad y presión
