@@ -14,11 +14,11 @@ def plot_particles(filename: str):
 
     # Graficar frontera (negro)
     plt.scatter(boundary["posx"], boundary["posy"],
-                s=10, c="black", label="Frontera (type=1)")
+                s=1, c="black", label="Frontera (type=1)")
 
     # Graficar fluido (azul)
     plt.scatter(fluid["posx"], fluid["posy"],
-                s=10, c="blue", label="Fluido (type=0)")
+                s=1, c="blue", label="Fluido (type=0)")
 
     # Ajustes
     plt.xlabel("x")

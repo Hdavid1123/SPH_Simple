@@ -10,6 +10,7 @@
 #include "utils/output.h"
 #include "utils/printPhysics.h"
 #include "utils/simulationUtils.h"
+#include "physics/boundary.h"
 
 int main(int argc, char* argv[]) {
     std::string filename = (argc > 1) ? argv[1] : "../data/archivo.txt";
@@ -21,10 +22,10 @@ int main(int argc, char* argv[]) {
 
         double kappa = 2.0;
         double rho0  = 1000.0;
-        int nSteps   = 100;
+        int nSteps   = 300;
         double c     = 0.01;
-        const double g = -9.81;  // gravedad
-        double dt = 5e-3;        // Valor fijo para pruebas iniciales
+        const double g = -9.87;  // gravedad
+        double dt = 1e-3;        // Valor fijo para pruebas iniciales
 
         // === Fase 1: inicializar h_min y malla ===
         double h_min = std::numeric_limits<double>::max();
@@ -36,12 +37,9 @@ int main(int argc, char* argv[]) {
         );
 
         // === Fase 2: actualizar h y vecinos ===
-        updateSmoothingLength(particles, rho0);
 
-        // recalcular h_min después de actualizar h
-        h_min = std::numeric_limits<double>::max();
-        for (const auto& p : particles) if (p.type == 0) h_min = std::min(h_min, p.h);
-
+        //updateSmoothingLength(particles, rho0);
+>>>>>>> b74dc18 (feat (analysis.ipynb): Se crean algunos archivos para analizar variables, se pasa a una rama con intención exclusiva.)
         cells = initializePhase(
             particles, h_min, kappa, c,
             "Post-h Update", "NN_after_h_update.output"
@@ -53,40 +51,39 @@ int main(int argc, char* argv[]) {
         int checkInterval = std::max(1, nSteps / 20); // 5% de los pasos
 
         for (int step = 0; step < nSteps; ++step) {
-            std::cout << "Paso " << step << "\n";
+        std::cout << "Paso " << step << "\n";
 
-            // 1️⃣ Drift (solo partículas de fluido)
-            drift(particles, dt);
+        // 1️⃣ Drift (solo partículas de fluido)
+        drift(particles, dt);
 
-            // 2️⃣ Actualizar longitud de suavizado y reconstruir malla
-            updateSmoothingLength(particles, rho0);
 
-            // recalcular h_min para la malla
-            h_min = std::numeric_limits<double>::max();
-            for (const auto& p : particles) if (p.type == 0) h_min = std::min(h_min, p.h);
+        // 2️⃣ Actualizar longitud de suavizado y reconstruir malla
+        //updateSmoothingLength(particles, rho0);
+        cells = rebuildGridAndNeighbors(particles, h_ref, kappa);
+>>>>>>> b74dc18 (feat (analysis.ipynb): Se crean algunos archivos para analizar variables, se pasa a una rama con intención exclusiva.)
 
-            cells = rebuildGridAndNeighbors(particles, h_min, kappa);
+        // 3️⃣ Recalcular densidad y presión
+        computeDensity(particles);
+        computePressureEOS(particles, c);
 
-            // 3️⃣ Recalcular densidad y presión
-            computeDensity(particles);
-            computePressureEOS(particles, c);
+        // 4️⃣ Aceleraciones internas (Navier-Stokes)
+        computeNavierStokes(particles);
 
-            // 4️⃣ Aceleraciones internas (Navier-Stokes)
-            computeNavierStokes(particles);
+        // 5️⃣ Interacción con frontera
+        boundaryInteraction(particles);
 
-            // 5️⃣ Sumar gravedad a partículas de fluido
-            for (auto& p : particles) if (p.type == 0) p.accel[1] += g;
+        // 6️⃣ Sumar gravedad a partículas de fluido
+        for (auto& p : particles) if (p.type == 0) p.accel[1] += g;
 
-            // 6️⃣ Kick
-            kick(particles, dt);
+        // 7️⃣ Kick
+        kick(particles, dt);
 
-            // 7️⃣ Verificación periódica
-            if (step % checkInterval == 0) verifyFirstFluidParticle(particles);
+        // 8️⃣ Verificación periódica
+        if (step % checkInterval == 0) verifyFirstFluidParticle(particles);
 
-            // 8️⃣ Guardar estado
-            printState(particles, step);
-        }
-
+        // 9️⃣ Guardar estado
+        printState(particles, step);
+    }
         std::cout << "Integración finalizada.\n";
 
     } catch (const std::exception& e) {
