@@ -8,25 +8,26 @@ double cubicSplineKernel(double r, double h, Dimension dim) {
     if (r < 0 || h <= 0) throw std::runtime_error("r>=0 and h>0 required");
 
     double q = r / h;
-    double sigma;
+    double alpha;
 
     switch(dim) {
-        case ONE_D:   sigma = 2.0 / 3.0; break;
-        case TWO_D:   sigma = 10.0 / (7.0 * M_PI); break;
-        case THREE_D: sigma = 1.0 / M_PI; break;
+        case ONE_D:   alpha = 2.0 / 3.0; break;
+        case TWO_D:   alpha = 10.0 / (7.0 * M_PI); break;
+        case THREE_D: alpha = 1.0 / M_PI; break;
         default:      throw std::runtime_error("Dimensión no soportada");
     }
 
-    sigma /= std::pow(h, static_cast<int>(dim));
+    alpha /= std::pow(h, static_cast<int>(dim));
 
     double w = 0.0;
     if (q >= 0.0 && q < 1.0) {
         w = 1.0 - 1.5*q*q + 0.75*q*q*q;
     } else if (q >= 1.0 && q < 2.0) {
         w = 0.25 * std::pow(2.0 - q, 3);
+    } else if (q > 2.0){
+        w = 0.0;
     }
-
-    return sigma * w;
+    return alpha * w;
 }
 
 // Derivadas direccionales dWx y dWy (solo en 2D por ahora)
@@ -37,12 +38,12 @@ std::array<double,2> dCubicSplineKernel(double r, double dx, double dy, double h
     double alpha = 15.0 / (7.0 * M_PI * h * h); // normalización 2D
     double factor = 0.0;
 
-    if (R < 1.0) {
+    if (R >= 0.0 && R < 1.0) {
         factor = alpha * (-2.0 + 1.5*R) / (h*h);
-    } else if (R < 2.0) {
+    } else if (R>= 1.0 && R < 2.0) {
         factor = alpha * (-0.5*(2.0-R)*(2.0-R)) / (h*h*R);
     } else {
-        return {0.0, 0.0};
+        factor = 0.0;
     }
 
     double dWx = factor * dx;
@@ -81,7 +82,7 @@ void testKernel(double h, Dimension dim) {
     }
 
     std::cout << "Prueba del kernel completada\n.";
-    std::cout << "Resultados en test/results/kernel_test.output\n";
+    std::cout << "Resultados en test_results/kernel_test.output\n";
 
     fKernelTest.close();
 }

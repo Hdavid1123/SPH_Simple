@@ -126,6 +126,7 @@ void computeBoundingBox(const std::vector<Particle>& particles,
 
 std::vector<Cell> rebuildGridAndNeighbors(std::vector<Particle>& particles,
                                           double h, double kappa) {
+                                       
     double xmin, xmax, ymin, ymax;
     computeBoundingBox(particles, xmin, xmax, ymin, ymax);
 

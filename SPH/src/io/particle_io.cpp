@@ -29,7 +29,6 @@ std::vector<Particle> readParticlesFromFile(const std::string& filename) {
             std::cerr << "Error en formato de línea: " << line << "\n";
             continue;
         }
-
         p.pos = {posx, posy};
         p.vel = {0.0, 0.0};
         p.accel = {0.0, 0.0};

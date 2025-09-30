@@ -2,7 +2,7 @@
   "nx": 10,
   "ny": 10,
   "flag_N":"False",
-  "espaciado": 0.004,
+  "espaciado": 0.002,
   "vertices": {
     "inf-izq": [-0.49, -0.075],
     "inf-der": [-0.34, -0.075],

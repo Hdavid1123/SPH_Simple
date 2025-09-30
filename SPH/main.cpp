@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <iomanip>  // para std::setprecision
 #include "io/particle_io.h"
 #include "core/linkedList.h"
 #include "core/cubicSplineKernel.h"
@@ -22,30 +23,45 @@ int main(int argc, char* argv[]) {
 
         double kappa = 2.0;
         double rho0  = 1000.0;
-        int nSteps   = 300;
+        int nSteps   = 1000;
         double c     = 0.01;
-        const double g = -9.87;  // gravedad
+        const double g = -0.987;  // gravedad
         double dt = 1e-3;        // Valor fijo para pruebas iniciales
 
+        // 🔹 Lambda para imprimir cambios en h
+        auto log_h_changes = [](const std::vector<Particle>& before,
+                                const std::vector<Particle>& after,
+                                const std::string& tag) {
+            for (size_t i = 0; i < before.size() && i < after.size(); ++i) {
+                if (std::abs(before[i].h - after[i].h) > 1e-12) {
+                    std::cout << "[h-changed][" << tag << "] id=" << after[i].id
+                              << " h_before=" << std::fixed << std::setprecision(6) << before[i].h
+                              << " -> h_after=" << std::fixed << std::setprecision(6) << after[i].h
+                              << "\n";
+                }
+            }
+        };
+
         // === Fase 1: inicializar h_min y malla ===
-        double h_min = std::numeric_limits<double>::max();
-        for (const auto& p : particles) if (p.type == 0) h_min = std::min(h_min, p.h);
+        double h_deb = 0.01; // H fijo para debug
 
         // Prueba del kernel cúbico
-        testKernel(h_min, TWO_D);
+        testKernel(1.0, TWO_D);
 
+        auto before_init = particles;
         auto cells = initializePhase(
-            particles, h_min, kappa, c,
+            particles, h_deb, kappa, c,
             "Inicial", "NN_before_h_update.output"
         );
+        log_h_changes(before_init, particles, "after_initializePhase");
 
         // === Fase 2: actualizar h y vecinos ===
-
-        //updateSmoothingLength(particles, rho0);
+        auto before_h = particles;
         cells = initializePhase(
-            particles, h_min, kappa, c,
+            particles, h_deb, kappa, c,
             "Post-h Update", "NN_after_h_update.output"
         );
+        log_h_changes(before_h, particles, "after_h_update");
 
         // === Fase 3: loop de integración ===
         std::cout << "Iniciando integración con " << nSteps << " pasos...\n";
@@ -53,39 +69,57 @@ int main(int argc, char* argv[]) {
         int checkInterval = std::max(1, nSteps / 20); // 5% de los pasos
 
         for (int step = 0; step < nSteps; ++step) {
-        std::cout << "Paso " << step << "\n";
+            std::cout << "Paso " << step << "\n";
 
-        // 1️⃣ Drift (solo partículas de fluido)
-        drift(particles, dt);
+            // 1️⃣ Drift
+            auto before_drift = particles;
+            drift(particles, dt);
+            log_h_changes(before_drift, particles, "after_drift");
 
+            // 2️⃣ Reconstrucción de malla
+            auto before_rebuild = particles;
+            cells = rebuildGridAndNeighbors(particles, h_deb, kappa);
+            log_h_changes(before_rebuild, particles, "after_rebuildGridAndNeighbors");
 
-        // 2️⃣ Actualizar longitud de suavizado y reconstruir malla
-        //updateSmoothingLength(particles, rho0);
-        cells = rebuildGridAndNeighbors(particles, h_min, kappa);
+            // 3️⃣ Densidad y presión
+            auto before_density = particles;
+            computeDensity(particles);
+            computePressureEOS(particles, c);
+            log_h_changes(before_density, particles, "after_density_pressure");
 
+            // 4️⃣ Aceleraciones internas
+            auto before_ns = particles;
+            computeNavierStokes(particles);
+            log_h_changes(before_ns, particles, "after_navier_stokes");
 
-        // 3️⃣ Recalcular densidad y presión
-        computeDensity(particles);
-        computePressureEOS(particles, c);
+            // 5️⃣ Interacción con frontera
+            auto before_boundary = particles;
+            boundaryInteraction(particles);
+            log_h_changes(before_boundary, particles, "after_boundary");
 
-        // 4️⃣ Aceleraciones internas (Navier-Stokes)
-        computeNavierStokes(particles);
+            // 6️⃣ Gravedad
+            auto before_gravity = particles;
+            for (auto& p : particles) if (p.type == 0) p.accel[1] += g;
+            log_h_changes(before_gravity, particles, "after_gravity");
 
-        // 5️⃣ Interacción con frontera
-        boundaryInteraction(particles);
+            // 7️⃣ Kick
+            auto before_kick = particles;
+            kick(particles, dt);
+            log_h_changes(before_kick, particles, "after_kick");
 
-        // 6️⃣ Sumar gravedad a partículas de fluido
-        for (auto& p : particles) if (p.type == 0) p.accel[1] += g;
+            // 8️⃣ Verificación periódica
+            if (step % checkInterval == 0) {
+                auto before_verify = particles;
+                verifyFirstFluidParticle(particles);
+                log_h_changes(before_verify, particles, "after_verify");
+            }
 
-        // 7️⃣ Kick
-        kick(particles, dt);
+            // 9️⃣ Guardar estado
+            auto before_print = particles;
+            printState(particles, step);
+            log_h_changes(before_print, particles, "after_printState");
+        }
 
-        // 8️⃣ Verificación periódica
-        if (step % checkInterval == 0) verifyFirstFluidParticle(particles);
-
-        // 9️⃣ Guardar estado
-        printState(particles, step);
-    }
         std::cout << "Integración finalizada.\n";
 
     } catch (const std::exception& e) {

@@ -28,7 +28,7 @@ void printAccelerations(const std::vector<Particle>& particles, int nPrint) {
 }
 
 void verifyFirstFluidParticle(const std::vector<Particle>& particles) {
-    int fluidIndex = -1;
+    int fluidIndex = 0;
 
     // Buscar primera partícula fluida
     for (size_t i = 0; i < particles.size(); ++i) {
@@ -42,7 +42,7 @@ void verifyFirstFluidParticle(const std::vector<Particle>& particles) {
         const Particle& p = particles[fluidIndex];
         std::cout << "=== Verificación partícula de fluido (index=" << fluidIndex << ") ===\n";
         std::cout << "Pos[0]=" << p.pos[0] << ", Pos[1]=" << p.pos[1]
-                  << ", H=" << p.h
+                  << ", h=" << p.h
                   << ", Vel[0]=" << p.vel[0] << ", Vel[1]=" << p.vel[1] << "\n";
 
         if (!p.neighbors.empty()) {

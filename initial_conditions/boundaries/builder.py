@@ -112,7 +112,8 @@ class BoundaryBuilder:
         if dy is None:
             dy = dx
         if h is None:
-            h = dx
+            #h = 1.5*dx
+            h = 0.01
 
         mass = rho0 * dx * dy
 

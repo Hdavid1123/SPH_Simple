@@ -159,7 +159,7 @@ Ejemplo de configuración (`parameters/fluid_region.json`):
   "nx": 20,
   "ny": 20,
   "flag_N": "True",
-  "espaciado": 0.02,
+  "espaciado": 0.001,
   "vertices": {
     "inf-izq": [-0.41, -0.14],
     "inf-der": [-0.25, -0.14],
