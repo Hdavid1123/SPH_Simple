@@ -17,9 +17,13 @@ std::vector<Cell> initializePhase(
     std::vector<Particle>& particles, double h_ref, double kappa, double c,
     const std::string& label, const std::string& testFile
 ) {
+
+    std::cout << "\n=== Dentro de initializePhase: " << label << " ===\n";
     auto cells = rebuildGridAndNeighbors(particles, h_ref, kappa);
     computeDensity(particles);
     computePressureEOS(particles, c);
+
+    std::cout << "\n=== Imprime la presión 10 partículas===\n";
     printDensityPressure(particles, 10);
     test_NN(particles, 20, testFile);
     std::cout << "Fase " << label << " completada.\n";
@@ -82,4 +86,16 @@ void test_NN(const std::vector<Particle>& particles, int nTests,
 
     fTestNN.close();
     std::cout << "Resultados guardados en " << filepath << "\n";
+}
+
+void freeParticleNeighbors(std::vector<Particle>& particles) {
+    for (auto& p : particles) {
+        std::vector<int>().swap(p.neighbors);
+        std::vector<double>().swap(p.dx);
+        std::vector<double>().swap(p.dy);
+        std::vector<double>().swap(p.r);
+        std::vector<double>().swap(p.W);
+        std::vector<double>().swap(p.dWx);
+        std::vector<double>().swap(p.dWy);
+    }
 }

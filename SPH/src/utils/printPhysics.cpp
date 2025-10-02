@@ -28,8 +28,7 @@ void printAccelerations(const std::vector<Particle>& particles, int nPrint) {
 }
 
 void verifyFirstFluidParticle(const std::vector<Particle>& particles) {
-    int fluidIndex = 0;
-
+    double fluidIndex = 0.0;
     // Buscar primera partícula fluida
     for (size_t i = 0; i < particles.size(); ++i) {
         if (particles[i].type == 0) { // 0 = fluido
@@ -39,9 +38,15 @@ void verifyFirstFluidParticle(const std::vector<Particle>& particles) {
     }
 
     if (fluidIndex >= 0) {
-        const Particle& p = particles[fluidIndex];
-        std::cout << "=== Verificación partícula de fluido (index=" << fluidIndex << ") ===\n";
-        std::cout << "Pos[0]=" << p.pos[0] << ", Pos[1]=" << p.pos[1]
+        std::cout << "Impriendo el h de particle antes del index\n";
+        std::cout << "h = " << particles[fluidIndex].h << "\n";
+        
+        //const Particle& p = particles[fluidIndex];
+    
+        /* std::cout << "=== Verificación partícula de fluido (index=" << fluidIndex << ") ===\n";
+        std::cout << "ID=" << p.id
+                  << " Type=" << p.type
+                  << " Pos[0]=" << p.pos[0] << ", Pos[1]=" << p.pos[1]
                   << ", h=" << p.h
                   << ", Vel[0]=" << p.vel[0] << ", Vel[1]=" << p.vel[1] << "\n";
 
@@ -61,6 +66,7 @@ void verifyFirstFluidParticle(const std::vector<Particle>& particles) {
         }
     } else {
         std::cout << "No hay partículas de fluido disponibles para verificar.\n";
-    }
+    } */
+}
 }
 

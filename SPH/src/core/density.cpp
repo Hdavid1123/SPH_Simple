@@ -1,7 +1,9 @@
+#include <iostream>
 #include "core/density.h"
 #include "core/cubicSplineKernel.h"
 
 void computeDensity(std::vector<Particle>& particles) {
+    std::cout << "\n=== Dentro de computeDensity ===\n";
     for (auto& pi : particles) {
         double rho = 0.0;
 
@@ -19,25 +21,28 @@ void computeDensity(std::vector<Particle>& particles) {
 }
 
 void updateSmoothingLength(std::vector<Particle>& particles, double rho0) {
-    const double h_min_limit = 0.3;
-    const double h_max_limit = 3.0;
 
+    std::cout << "\n=== Dentro de updateSmoothingLength ===\n";
     for (auto& pi : particles) {
-        // Solo partículas de fluido
         if (pi.type != 0) continue;
-
         if (pi.neighbors.empty()) continue;
 
-        // Factor basado en densidad
+        double old_h = pi.h;
+
         double factor = 1.0 - 0.5 * (pi.rho / rho0 - 1.0);
         if (factor < 0.1) factor = 0.1;
 
-        // Nuevo h candidato
         double h_new = pi.h * factor;
+        if (h_new < 0.3) h_new = 0.3;
+        if (h_new > 3.0) h_new = 3.0;
 
-        // Limitar h al rango [0.3, 3.0]
-        if (h_new < h_min_limit) h_new = h_min_limit;
-        if (h_new > h_max_limit) h_new = h_max_limit;
+        if (std::abs(h_new - old_h) > 1e-12) {
+            std::cout << "[updateSmoothingLength] id=" << pi.id
+                      << " old_h=" << old_h
+                      << " new_h=" << h_new
+                      << " rho=" << pi.rho
+                      << " factor=" << factor << "\n";
+        }
 
         pi.h = h_new;
     }

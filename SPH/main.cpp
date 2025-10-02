@@ -6,12 +6,11 @@
 #include "core/cubicSplineKernel.h"
 #include "core/density.h"
 #include "physics/integrator.h"
-#include "physics/navierStokes.h"
 #include "physics/pressure.h"
 #include "utils/output.h"
 #include "utils/printPhysics.h"
 #include "utils/simulationUtils.h"
-#include "physics/boundary.h"
+#include "physics/acceleration.h"
 
 int main(int argc, char* argv[]) {
     std::string filename = (argc > 1) ? argv[1] : "../data/archivo.txt";
@@ -19,26 +18,24 @@ int main(int argc, char* argv[]) {
     try {
         auto particles = readParticlesFromFile(filename);
         std::cout << "Se leyeron " << particles.size() << " partículas.\n";
-        validateParticles(particles);
+        //validateParticles(particles);
 
         double kappa = 2.0;
         double rho0  = 1000.0;
         int nSteps   = 1000;
         double c     = 0.01;
-        const double g = -0.987;  // gravedad
+        const double g = -9.87;  // gravedad
         double dt = 1e-3;        // Valor fijo para pruebas iniciales
+        double H = 0.15;         // Altura de la columna debe calcularse de mejor manera
 
-        // 🔹 Lambda para imprimir cambios en h
-        auto log_h_changes = [](const std::vector<Particle>& before,
-                                const std::vector<Particle>& after,
-                                const std::string& tag) {
-            for (size_t i = 0; i < before.size() && i < after.size(); ++i) {
-                if (std::abs(before[i].h - after[i].h) > 1e-12) {
-                    std::cout << "[h-changed][" << tag << "] id=" << after[i].id
-                              << " h_before=" << std::fixed << std::setprecision(6) << before[i].h
-                              << " -> h_after=" << std::fixed << std::setprecision(6) << after[i].h
-                              << "\n";
-                }
+        // 🔹 Helper para imprimir los primeros N valores de h
+        auto print_h_values = [](const std::vector<Particle>& particles,
+                                 const std::string& tag, int n=5) {
+            std::cout << "\n--- " << tag << " ---\n";
+            for (int i = 0; i < std::min(n, (int)particles.size()); i++) {
+                std::cout << "id=" << particles[i].id
+                          << " h=" << std::fixed << std::setprecision(6) << particles[i].h
+                          << "\n";
             }
         };
 
@@ -48,12 +45,14 @@ int main(int argc, char* argv[]) {
         // Prueba del kernel cúbico
         testKernel(1.0, TWO_D);
 
+        print_h_values(particles, "Después de leer archivo");
+
         auto before_init = particles;
         auto cells = initializePhase(
             particles, h_deb, kappa, c,
             "Inicial", "NN_before_h_update.output"
         );
-        log_h_changes(before_init, particles, "after_initializePhase");
+        print_h_values(particles, "Después de initializePhase [Inicial]");
 
         // === Fase 2: actualizar h y vecinos ===
         auto before_h = particles;
@@ -61,7 +60,7 @@ int main(int argc, char* argv[]) {
             particles, h_deb, kappa, c,
             "Post-h Update", "NN_after_h_update.output"
         );
-        log_h_changes(before_h, particles, "after_h_update");
+        print_h_values(particles, "Después de initializePhase [Post-h Update]");
 
         // === Fase 3: loop de integración ===
         std::cout << "Iniciando integración con " << nSteps << " pasos...\n";
@@ -70,54 +69,51 @@ int main(int argc, char* argv[]) {
 
         for (int step = 0; step < nSteps; ++step) {
             std::cout << "Paso " << step << "\n";
+            //print_h_values(particles, "Inicio paso " + std::to_string(step));
 
             // 1️⃣ Drift
             auto before_drift = particles;
             drift(particles, dt);
-            log_h_changes(before_drift, particles, "after_drift");
+            //print_h_values(particles, "Después de Drift");
 
             // 2️⃣ Reconstrucción de malla
             auto before_rebuild = particles;
             cells = rebuildGridAndNeighbors(particles, h_deb, kappa);
-            log_h_changes(before_rebuild, particles, "after_rebuildGridAndNeighbors");
-
+            //print_h_values(particles, "Después de Rebuild");
+            std::cout << "Número de celdas: " << cells.size() << "\n";
+            
             // 3️⃣ Densidad y presión
             auto before_density = particles;
             computeDensity(particles);
-            computePressureEOS(particles, c);
-            log_h_changes(before_density, particles, "after_density_pressure");
+            computePressureKorzani(particles, H, g, rho0);
+            //computePressureMonaghan(particles, rho0);
+            //computePressureEOS(particles, c)
+            //print_h_values(particles, "Después de Density+Pressure");
 
-            // 4️⃣ Aceleraciones internas
-            auto before_ns = particles;
-            computeNavierStokes(particles);
-            log_h_changes(before_ns, particles, "after_navier_stokes");
-
-            // 5️⃣ Interacción con frontera
-            auto before_boundary = particles;
-            boundaryInteraction(particles);
-            log_h_changes(before_boundary, particles, "after_boundary");
-
-            // 6️⃣ Gravedad
-            auto before_gravity = particles;
-            for (auto& p : particles) if (p.type == 0) p.accel[1] += g;
-            log_h_changes(before_gravity, particles, "after_gravity");
+            // 4️⃣ Aceleraciones internas, frontera y gravedad
+            auto before_accel = particles;
+            acceleration(particles, g, h_deb);
+            //print_h_values(particles, "Después de Acceleration");
 
             // 7️⃣ Kick
             auto before_kick = particles;
             kick(particles, dt);
-            log_h_changes(before_kick, particles, "after_kick");
+            //print_h_values(particles, "Después de Kick");
 
             // 8️⃣ Verificación periódica
             if (step % checkInterval == 0) {
                 auto before_verify = particles;
                 verifyFirstFluidParticle(particles);
-                log_h_changes(before_verify, particles, "after_verify");
+                print_h_values(particles, "Después de Verify");
             }
 
             // 9️⃣ Guardar estado
             auto before_print = particles;
             printState(particles, step);
-            log_h_changes(before_print, particles, "after_printState");
+            //print_h_values(particles, "Después de printState");
+
+            // 10️⃣ Liberar memoria temporal
+            freeParticleNeighbors(particles);
         }
 
         std::cout << "Integración finalizada.\n";

@@ -17,3 +17,6 @@ std::vector<Cell> initializePhase(
 // Test de vecinos: escribe en NN_test.output
 void test_NN(const std::vector<Particle>& particles, int nTests,
              const std::string& filename);
+
+// Libera memoria de vecinos y kernels
+void freeParticleNeighbors(std::vector<Particle>& particles);

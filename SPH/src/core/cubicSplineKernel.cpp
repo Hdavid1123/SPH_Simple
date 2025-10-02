@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <cmath>
+#include <filesystem>
 #include "core/cubicSplineKernel.h"
 
 double cubicSplineKernel(double r, double h, Dimension dim) {
@@ -54,6 +55,8 @@ std::array<double,2> dCubicSplineKernel(double r, double dx, double dy, double h
 
 // Función de prueba del kernel cúbico
 void testKernel(double h, Dimension dim) {
+    // Crear el directorio test_results si no existe
+    std::filesystem::create_directories("test_results");
     std::ofstream fKernelTest("test_results/kernel_test.output");
     if (!fKernelTest.is_open()) {
         throw std::runtime_error("No se pudo abrir kernel_test.output");
