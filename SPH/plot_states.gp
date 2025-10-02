@@ -1,5 +1,5 @@
 lim = 1000
-retardo = 10
+retardo = 2
 f = 0.01
 
 set terminal qt size 800,800 enhanced font 'Verdana,10'

@@ -99,6 +99,10 @@ python initial_conditions/main.py export_fluid --plot
 
 # Exportar todo en un archivo llamado escena.txt
 python initial_conditions/main.py export_all --output escena.txt
+
+# Exportar todo en un archivo llamado vaciado_tanque.txt y visualizar
+python -m initial_conditions.main export_all --output vaciado_tanque.txt --plot
+
 ```
 
 ---
